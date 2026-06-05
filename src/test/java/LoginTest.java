@@ -1,52 +1,96 @@
+import api.User;
+import api.UserClient;
+import api.UserGenerator;
 import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
-import org.junit.Rule;
-import org.junit.Test;
+import io.restassured.response.Response;
+import org.junit.*;
 import org.openqa.selenium.WebDriver;
 import page_objects.*;
+import utils.ApiConfig; // Импортируем ApiConfig
 
 import static org.junit.Assert.assertTrue;
 
 public class LoginTest {
-
-    private static final String EMAIL = "bubenchik3@yandex.ru";
-    private static final String PASSWORD = "1111122222";
-
     @Rule
     public FactoryDriver factoryDriver = new FactoryDriver();
 
     private WebDriver driver;
     private MainPage mainPage;
+    private User testUser;
+    private UserClient userClient;
 
-    // Общий запуск драйвера для всех тестов
-    @org.junit.Before
+    @BeforeClass // Добавляем BeforeClass для настройки API
+    public static void setUpApi() {
+        ApiConfig.setupBaseUrl(); // Вызываем настройку baseURI из ApiConfig
+    }
+
+    @Before
     public void setUp() {
+        userClient = new UserClient();
+        testUser = createRandomUser();
         driver = factoryDriver.getDriver();
         mainPage = new MainPage(driver);
         mainPage.openPage();
     }
 
-    // Общий метод для заполнения формы входа
-    private void fillLoginForm(LoginPage loginPage) {
-        loginPage.clickOnEmailLoginField();
-        loginPage.typeInEmailLogin(EMAIL);
-        loginPage.clickOnPasswordLoginField();
-        loginPage.typeInPasswordLogin(PASSWORD);
+    @Step("Создание тестового пользователя через API")
+    private User createRandomUser() {
+        User randomUser = UserGenerator.testUser();
+        Response response = userClient.register(randomUser);
+
+        if (response.statusCode() != 201 && response.statusCode() != 200) {
+            throw new RuntimeException(
+                    "Не удалось создать тестового пользователя. Статус: " +
+                            response.statusCode() + ", ответ: " + response.asString()
+            );
+        }
+
+        boolean success = response.jsonPath().getBoolean("success");
+        if (!success) {
+            throw new RuntimeException(
+                    "Создание пользователя завершилось ошибкой (success=false). Ответ: " +
+                            response.asString()
+            );
+        }
+
+        System.out.println("Создан тестовый пользователь с email: " + randomUser.getEmail());
+        return randomUser;
     }
 
-    // Общий метод для проверки успешного логина
+    @After
+    public void tearDown() {
+        if (testUser != null && testUser.getEmail() != null) {
+            try {
+                userClient.deleteUserByEmail(testUser.getEmail());
+                System.out.println("Удален тестовый пользователь: " + testUser.getEmail());
+            } catch (Exception e) {
+                System.err.println("Ошибка при удалении пользователя: " + e.getMessage());
+            }
+        }
+
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    private void fillLoginForm(LoginPage loginPage) {
+        loginPage.clickOnEmailLoginField();
+        loginPage.typeInEmailLogin(testUser.getEmail());
+        loginPage.clickOnPasswordLoginField();
+        loginPage.typeInPasswordLogin(testUser.getPassword());
+    }
+
     private void assertSuccessfulLogin(LoginPage loginPage) {
         OrderPage orderPage = loginPage.clickOnEnterButton();
         assertTrue(orderPage.isOrderPageDisplayed());
     }
-
 
     @Test
     @DisplayName("Вход в аккаунт по кнопке Войти")
     public void loginTestFromEnterButton() {
         LoginPage loginPage = mainPage.clickOnEnterAccountButton();
         assertTrue(loginPage.isLoginPageDisplayed());
-
         fillLoginForm(loginPage);
         assertSuccessfulLogin(loginPage);
     }
@@ -56,7 +100,6 @@ public class LoginTest {
     public void loginTestFromPersonalAccountButton() {
         LoginPage loginPage = mainPage.clickOnPersonalAccountButton();
         assertTrue(loginPage.isLoginPageDisplayed());
-
         fillLoginForm(loginPage);
         assertSuccessfulLogin(loginPage);
     }
@@ -87,8 +130,7 @@ public class LoginTest {
         assertTrue(recoveryPasswordPage.isRecoveryPasswordPageDisplayed());
 
         LoginPage loginPage = recoveryPasswordPage.clickOnAuthLink();
-        assertTrue(loginPage.isLoginPageDisplayed()); // Исправлено: было loginPageBefore
-
+        assertTrue(loginPage.isLoginPageDisplayed());
         fillLoginForm(loginPage);
         assertSuccessfulLogin(loginPage);
     }

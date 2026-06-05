@@ -14,21 +14,38 @@ public class BurgerConstructorTest {
     public FactoryDriver factoryDriver = new FactoryDriver();
 
 
-
     @Test
-    @DisplayName("Отображение конструктора бургеров")
-    public void burgerConstructorTest() {
+    @DisplayName("Отображение секции соусов")
+    public void sauceSectionTest() {
         WebDriver driver = factoryDriver.getDriver();
         MainPage mainPage = new MainPage(driver);
         mainPage.openPage();
 
         mainPage.clickOnSauceButton();
         assertTrue(mainPage.isSauceSectionDisplayed());
+    }
 
-        mainPage.clickOnBunsButton();
-        assertTrue(mainPage.isBunsSectionDisplayed());
+@Test
+@DisplayName("Отображение секции булочек")
+public void bunsSectionTest() {
+    WebDriver driver = factoryDriver.getDriver();
+    MainPage mainPage = new MainPage(driver);
+    mainPage.openPage();
+
+    mainPage.clickOnSauceButton();
+    mainPage.clickOnBunsButton();
+    assertTrue(mainPage.isBunsSectionDisplayed());
+}
+
+    @Test
+    @DisplayName("Отображение секции ингредиентов")
+    public void ingredientSectionTest() {
+        WebDriver driver = factoryDriver.getDriver();
+        MainPage mainPage = new MainPage(driver);
+        mainPage.openPage();
 
         mainPage.clickOnIngredientButton();
         assertTrue(mainPage.isIngredientSectionDisplayed());
     }
 }
+

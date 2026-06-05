@@ -1,23 +1,16 @@
-# Maven
+
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-# Kotlin
+!target/allure-results/
+!target/allure-results/**
+
 .kotlin
 
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
-*.iml
-*.ipr
-# Но сохраняем .idea/ в репозитории, если нужно (например, для общих настроек)
-!.idea/
+.idea/
 
-### Eclipse ###
 .apt_generated
 .classpath
 .factorypath
@@ -26,7 +19,6 @@ target/
 .springBeans
 .sts4-cache
 
-### NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -36,22 +28,11 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
 .vscode/
 
-### Mac OS ###
 .DS_Store
 
-# Дополнительные игнорируемые папки (если они не нужны в репозитории)
 .target/
 .mvn/
 .allure/
-
-# Разрешаем просмотр папки target (но не её содержимого)
-!target/
-# Разрешаем просмотр содержимого target (чтобы Git мог «увидеть» подпапки)
-!target/*
-# Явно разрешаем папку allure-results внутри target
-!target/allure-results/
-# Дополнительно: разрешаем всё содержимое allure-results
-!target/allure-results/*
+.Diplom-3.iml

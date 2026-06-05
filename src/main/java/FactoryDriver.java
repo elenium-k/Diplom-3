@@ -34,7 +34,6 @@ startYandex();
         return driver;
     }
 
-
     @Override
     protected void before() {
         initDriver();

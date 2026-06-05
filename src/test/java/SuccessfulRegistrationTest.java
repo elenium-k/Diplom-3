@@ -1,5 +1,7 @@
-import io.qameta.allure.Step;
+import api.User;
+import api.UserClient;
 import io.qameta.allure.junit4.DisplayName;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,46 +18,40 @@ import java.util.UUID;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
-public class RegistrationTest {
+public class SuccessfulRegistrationTest {
 
     private String name;
     private String email;
     private String password;
-    private boolean isSuccessful;
+    private WebDriver driver;
+    private User testUser;
 
     @Rule
     public FactoryDriver factoryDriver = new FactoryDriver();
 
-    public RegistrationTest(String name, String email, String password, boolean isSuccessful) {
+    public SuccessfulRegistrationTest(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.isSuccessful = isSuccessful;
     }
 
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                // Успешные регистрации
-                {"BurgerEater", generateUniqueEmail("burgereater"), "StrongPass123", true},
-                {"LenaBurgerEater", generateUniqueEmail("lena"), "Pass123", true},
-                // Неуспешные регистрация
-                {"MariaBurgerEater", generateUniqueEmail("maria"), "12345", false}
+                {"BurgerEater", generateUniqueEmail("burgereater"), "StrongPass123"},
+                {"LenaBurgerEater", generateUniqueEmail("lena"), "Pass123"}
         });
     }
 
-    // Вспомогательный метод для генерации уникального email
     private static String generateUniqueEmail(String baseName) {
-        String uuid = UUID.randomUUID().toString().substring(0, 8); // Берём первые 8 символов UUID
+        String uuid = UUID.randomUUID().toString().substring(0, 8);
         return baseName + "_" + uuid + "@test.com";
     }
 
-
-
     @Test
-    @DisplayName("Регистрация пользователя")
-    public void registrationTest() {
-        WebDriver driver = factoryDriver.getDriver();
+    @DisplayName("Успешная регистрация пользователя")
+    public void successfulRegistrationTest() {
+        driver = factoryDriver.getDriver();
         MainPage mainPage = new MainPage(driver);
         mainPage.openPage();
         LoginPage loginPage = mainPage.clickOnPersonalAccountButton();
@@ -74,14 +70,30 @@ public class RegistrationTest {
         registrationPage.typeInPassword(password);
         LoginPage loginPageForNewUser = registrationPage.clickOnRegistrateNewUserButton();
 
-        if (isSuccessful) {
-            //  проверяем переход на страницу входа
-            assertTrue(loginPageForNewUser.isLoginPageDisplayed());
-        } else {
-            // проверяем, что остались на странице регистрации
-            // и видим сообщение об ошибке
-            assertTrue(registrationPage.isRegistrationPageDisplayed());
-            assertTrue(registrationPage.isWrongPasswordMessageDisplayed());
+        // Сохраняем данные пользователя для удаления в tearDown
+        testUser = new User(email, password, name);
+
+        assertTrue(loginPageForNewUser.isLoginPageDisplayed());
+    }
+
+    @After
+    public void tearDown() {
+        // Удаляем тестового пользователя, если он был создан
+        if (testUser != null && testUser.getEmail() != null) {
+            try {
+                UserClient userClient = new UserClient();
+                userClient.deleteUserByEmail(testUser.getEmail());
+            } catch (Exception e) {
+                System.err.println("Ошибка при удалении пользователя: " + e.getMessage());
+            }
+        }
+
+        if (driver != null) {
+            try {
+                driver.quit();
+            } catch (Exception e) {
+                System.err.println("Ошибка при закрытии драйвера: " + e.getMessage());
+            }
         }
     }
 }
