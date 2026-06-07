@@ -1,6 +1,0 @@
-page_objects/LoginPage.class
-page_objects/MainPage.class
-page_objects/OrderPage.class
-page_objects/RecoveryPasswordPage.class
-FactoryDriver.class
-page_objects/RegistrationPage.class
