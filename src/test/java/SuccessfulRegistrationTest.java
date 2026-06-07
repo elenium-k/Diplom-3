@@ -7,9 +7,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openqa.selenium.WebDriver;
-import page_objects.LoginPage;
-import page_objects.MainPage;
-import page_objects.RegistrationPage;
+import page.objects.LoginPage;
+import page.objects.MainPage;
+import page.objects.RegistrationPage;
 
 import java.util.Arrays;
 import java.util.Collection;

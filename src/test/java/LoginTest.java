@@ -6,7 +6,7 @@ import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.*;
 import org.openqa.selenium.WebDriver;
-import page_objects.*;
+import page.objects.*;
 import utils.ApiConfig; // Импортируем ApiConfig
 
 import static org.junit.Assert.assertTrue;

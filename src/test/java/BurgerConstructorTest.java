@@ -1,10 +1,9 @@
 
-import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
-import page_objects.MainPage;
+import page.objects.MainPage;
 import static org.junit.Assert.assertTrue;
 
 
