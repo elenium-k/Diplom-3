@@ -29,4 +29,4 @@ Diplom-3.iml
 build/
 
 target/
-!target/allure-results/
+!target/allure-results/idea/
